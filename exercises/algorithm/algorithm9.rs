@@ -1,8 +1,7 @@
 /*
-	heap
-	This question requires you to implement a binary heap function
+    heap
+    This question requires you to implement a binary heap function
 */
-// I AM NOT DONE
 
 use std::cmp::Ord;
 use std::default::Default;
@@ -37,7 +36,14 @@ where
     }
 
     pub fn add(&mut self, value: T) {
-        //TODO
+        self.items.push(value);
+        self.count += 1;
+        let mut idx = self.len();
+        while idx > 1 && (self.comparator)(&self.items[idx], &self.items[self.parent_idx(idx)]) {
+            let parent_idx = self.parent_idx(idx);
+            self.items.swap(idx, parent_idx);
+            idx = parent_idx;
+        }
     }
 
     fn parent_idx(&self, idx: usize) -> usize {
@@ -57,8 +63,28 @@ where
     }
 
     fn smallest_child_idx(&self, idx: usize) -> usize {
-        //TODO
-		0
+        if self.right_child_idx(idx) <= self.count {
+            if (self.comparator)(
+                &self.items[self.left_child_idx(idx)],
+                &self.items[self.right_child_idx(idx)],
+            ) {
+                self.left_child_idx(idx)
+            } else {
+                self.right_child_idx(idx)
+            }
+        } else {
+            self.left_child_idx(idx)
+        }
+    }
+
+    fn bubble_down(&mut self, mut idx: usize) {
+        while self.children_present(idx) {
+            let child_idx = self.smallest_child_idx(idx);
+            if (self.comparator)(&self.items[child_idx], &self.items[idx]) {
+                self.items.swap(idx, child_idx);
+            }
+            idx = child_idx;
+        }
     }
 }
 
@@ -84,8 +110,16 @@ where
     type Item = T;
 
     fn next(&mut self) -> Option<T> {
-        //TODO
-		None
+        if self.is_empty() {
+            None
+        } else {
+            let top = self.items.swap_remove(1);
+            self.count -= 1;
+            if !self.is_empty() {
+                self.bubble_down(1);
+            }
+            Some(top)
+        }
     }
 }
 
